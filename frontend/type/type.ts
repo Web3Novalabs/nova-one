@@ -1,5 +1,5 @@
 import { Moment } from "moment";
-import { AccountInterface } from "starknet";
+import { Abi, AccountInterface, Call, Contract } from "starknet";
 
 export type modal = {
   setIsOpen: () => void;
@@ -24,12 +24,12 @@ export type modal = {
 // };
 
 export interface poolModal {
-  modalHandle:()=>void,
-  sendFn:()=>void,
-  data:sendFnType
+  modalHandle: () => void;
+  sendFn: () => void;
+  data: sendFnType;
 }
 
-export interface creatorInputs{
+export interface creatorInputs {
   name: string;
   betType: number;
   description: string;
@@ -42,10 +42,10 @@ export interface creatorInputs{
   creatorsFee: number;
   optionOne: string;
   optionTwo: string;
-  poolImage:string;
-  status:number,
-  category:number
-};
+  poolImage: string;
+  status: number;
+  category: number;
+}
 
 export interface creatoHook {
   poolDemoImage: string;
@@ -54,27 +54,27 @@ export interface creatoHook {
   poolLock: Moment | string;
   setEndDate: (x: number) => void;
   setLockDate: (x: number) => void;
-  setImage: (x: null| string) => void;
+  setImage: (x: null | string) => void;
   setStartDate: (x: number) => void;
 }
 
 export type sendFnType = {
   account: AccountInterface | undefined;
-  endDate: number ;
-  lockDate: number ;
+  endDate: number;
+  lockDate: number;
   startDate: number;
-  poolName:string;
-  poolType:number;
-  poolDetail:string;
-  image:FileList | string | File;
-  poolUrl:string;
-  poolOptionA:string;
-  poolOptionB:string;
-  poolMin:number;
-  poolMax:number;
-  poolCreatorFee:number;
-  poolCategory:number;
-}; 
+  poolName: string;
+  poolType: number;
+  poolDetail: string;
+  image: FileList | string | File;
+  poolUrl: string;
+  poolOptionA: string;
+  poolOptionB: string;
+  poolMin: number;
+  poolMax: number;
+  poolCreatorFee: number;
+  poolCategory: number;
+};
 
 export interface PoolData {
   poolName: string;
@@ -99,4 +99,22 @@ export interface PoolData {
   totalShareOption2: string;
   totalStakeOption1: string;
   totalStakeOption2: string;
+}
+
+export interface ContractWriteConfig {
+  functionName: string;
+  abi: Abi;
+  contractAddress: `0x${string}`;
+  args?: string[];
+}
+
+export interface ContractWriteResult {
+  writeAsync: (() => void) | undefined;
+  writeData: any;
+  writeIsPending: boolean;
+  waitIsLoading: boolean;
+  waitData: any;
+  calls: Call[] | undefined;
+  error: Error | null;
+  isSuccess: boolean;
 }

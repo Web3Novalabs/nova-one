@@ -1,3 +1,12 @@
+import { useMemo } from "react";
+import {
+  useContract,
+  useSendTransaction,
+  useTransactionReceipt,
+} from "@starknet-react/core";
+
+import { ContractWriteConfig, ContractWriteResult } from "@/type/type";
+
 // Helper function to short address
 export function addressSlice(address: string) {
   const userAddressStart = address.slice(0, 6);
@@ -29,8 +38,68 @@ export function felt252ToString(feltValue: number) {
 }
 
 // Helper function to short large sentence
-export function sliceWithEllipsis(text: string,number:number): string {
+export function sliceWithEllipsis(text: string, number: number): string {
   if (text?.length <= number) return text;
   return text?.slice(0, number) + "...";
 }
 
+// Helper function to write to a contract
+export function useContractWrite(
+  config: ContractWriteConfig
+): ContractWriteResult {
+  const { functionName, args = [], abi, contractAddress } = config;
+
+  const { contract } = useContract({
+    abi,
+    address: contractAddress,
+  });
+
+  // Prepare contract calls
+  const calls = useMemo(() => {
+    const isValidArgs =
+      Array.isArray(args) &&
+      !args.some((arg) => arg === undefined || arg === null);
+
+    if (!contract || !isValidArgs) {
+      return undefined;
+    }
+
+    try {
+      return [contract.populate(functionName, args)];
+    } catch (error) {
+      console.error(`Error populating contract call: ${error}`);
+      return undefined;
+    }
+  }, [contract, functionName, args]);
+
+  // Handle transaction sending
+  const {
+    sendAsync: writeAsync,
+    data: writeData,
+    isPending: writeIsPending,
+    error,
+  } = useSendTransaction({
+    calls,
+  });
+
+  // Handle transaction receipt
+  const {
+    isLoading: waitIsLoading,
+    data: waitData,
+    isSuccess,
+  } = useTransactionReceipt({
+    hash: writeData?.transaction_hash,
+    watch: true,
+  });
+
+  return {
+    writeAsync,
+    writeData,
+    writeIsPending,
+    waitIsLoading,
+    waitData,
+    calls,
+    error,
+    isSuccess,
+  };
+}
